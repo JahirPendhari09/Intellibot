@@ -1,0 +1,44 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@layer base {
+  body {
+    /* @apply bg-background; */
+  }
+}
+
+@layer components {
+  .btn-outline {
+    @apply px-4 py-2 bg-transparent border border-primary_green rounded-md text-primary_green;
+  }
+  .btn {
+    @apply px-4 py-2 bg-primary_green rounded-md text-white;
+  }
+  .bgcolor {
+    background-color: rgb(254, 223, 229);
+  }
+  .startButton{
+ background-color: rgb(220, 217, 253);
+ border: none;
+ padding: 10px;
+ border-radius: 5px;
+ cursor: pointer;
+  }
+  .startButton:hover{
+    background-color:rgb(198, 194, 250);
+    /* color: #f5f5f5; */
+  }
+  .h2{
+    font-size: 24px;
+    
+  }
+}
