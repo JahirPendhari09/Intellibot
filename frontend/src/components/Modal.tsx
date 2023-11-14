@@ -1,5 +1,5 @@
-import React, { ReactNode } from 'react';
-import '../App.css';
+import React, { ReactNode } from "react";
+import "../App.css";
 
 interface ModalProps {
   isOpen: boolean;
@@ -12,8 +12,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
   return (
     <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-60 flex justify-center items-center">
-      <div className="bg-white w-3/10 p-4 rounded-md shadow-md relative">
-        <button className="close-button absolute top-2 right-2" onClick={onClose}>
+      <div className="bg-white p-4 rounded-md shadow-md relative">
+        <button
+          className="close-button absolute top-2 right-2"
+          onClick={onClose}
+        >
           &times;
         </button>
         <div>{children}</div>
@@ -22,4 +25,4 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   );
 };
 
-export {Modal};
+export { Modal };

@@ -56,20 +56,21 @@ exports.loginUser = async (req, res, next) => {
     const user = await User.findOne({ email });
     if (user) {
       bcrypt.compare(password, user.password, function (err, result) {
-        if (err) {
+        if (result) {
+          var token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
+          res
+            .status(200)
+            .json({
+              message: `Welcome back ${user.name}`,
+              token: token,
+              user: user,
+            });
+         
+        }else{
           return res
-            .status(400)
-            .json({ message: "Invalid password,Try again" });
+          .status(400)
+          .json({ message: "Invalid password,Try again" });
         }
-
-        var token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY);
-        res
-          .status(200)
-          .json({
-            message: `Welcome back ${user.name}`,
-            token: token,
-            user: user,
-          });
       });
     } else {
       return res
@@ -95,10 +96,9 @@ exports.logoutUser = async (req, res, next) => {
 };
 
 exports.getUserData = async (req, res, next) => {
-  const us = req.headers.authorization?.split(" ")[1];
-
+  const userId = req.headers.authorization?.split(" ")[1];
   try {
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).populate("pastInterviews");
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });

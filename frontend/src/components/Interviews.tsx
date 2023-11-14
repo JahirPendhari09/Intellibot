@@ -1,16 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useToast } from "./custom/ToastProvider";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import axios from "axios";
 import { Modal } from "./Modal";
-import {
-  POST_STARTINTERVIEW_ERROR,
-  POST_STARTINTERVIEW_LOADING,
-  POST_STARTINTERVIEW_SUCCESS,
-} from "../redux/interviewReducer/actionTypes";
-import {BsLaptop} from "react-icons/bs"
-import { Link } from 'react-router-dom';
+import { BsLaptop } from "react-icons/bs";
+import { Link, useNavigate } from "react-router-dom";
+import { CHANGE_INTERVIEW_TYPE } from "../redux/interviewReducer/actionTypes";
+import { UserInterviews } from "./UserInterviews";
+import { Button } from "flowbite-react";
+import { UserAction } from "./UserAction";
+
 interface Course {
   id: number;
   title: string;
@@ -19,6 +18,7 @@ interface Course {
 
 const Interviews = () => {
   const toast = useToast();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const isAuth: boolean = useSelector(
     (store: RootState) => store.authReducer.isAuth
@@ -29,15 +29,13 @@ const Interviews = () => {
   const loggedInUser = useSelector(
     (store: RootState) => store.authReducer.loggedInUser
   );
-  console.log(isAuth, token, loggedInUser, "Dashboard");
+  // console.log(isAuth, token, loggedInUser, "Dashboard");
   const [selectedTab, setSelectedTab] = useState<number>(0);
 
   const handleTabChange = (index: number) => {
     setSelectedTab(index);
   };
 
-
-  
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const openModal = (): void => {
@@ -48,114 +46,138 @@ const Interviews = () => {
     setIsModalOpen(false);
   };
 
-  const startInterview = async (type: any, toast: any, navigate: any) => {
-    dispatch({ type: POST_STARTINTERVIEW_LOADING });
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/interview/start`,
-        type,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      // console.log(response, "LOGIN");
-      if (response.data) {
-        dispatch({ type: POST_STARTINTERVIEW_SUCCESS, payload: response.data });
-        toast("success", "Interview started successfully");
-      }
-    } catch (error) {
-      console.log(error);
-      dispatch({ type: POST_STARTINTERVIEW_ERROR });
-      toast("error", "Oops! Login failed!");
+  // const startInterview = async (type: any, toast: any, navigate: any) => {
+  //   dispatch({ type: POST_STARTINTERVIEW_LOADING });
+  //   try {
+  //     const response = await axios.post(
+  //       `${process.env.REACT_APP_API_URL}/interview/start`,
+  //       type,
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
+  //     // console.log(response, "LOGIN");
+  //     if (response.data) {
+  //       dispatch({ type: POST_STARTINTERVIEW_SUCCESS, payload: response.data });
+  //       toast("success", "Interview started successfully");
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //     dispatch({ type: POST_STARTINTERVIEW_ERROR });
+  //     toast("error", "Oops! Login failed!");
+  //   }
+  // };
+
+  const [type, setType] = useState<String>("");
+
+  useEffect(() => {
+    if (type) {
+      dispatch({ type: CHANGE_INTERVIEW_TYPE, payload: type });
     }
-  };
-
-  const allCourses: Course[] = [
-    { id: 1, title: 'NEM111', description: 'General1' },
-    { id: 2, title: 'NEM 111', description: 'General' },
-    { id: 2, title: 'NEM 111', description: 'General' },
-    { id: 2, title: 'NEM 111', description: 'General' },
-    { id: 2, title: 'NEM 111', description: 'General' },
-    { id: 2, title: 'NEM 111', description: 'General' },
-    { id: 2, title: 'NEM 111', description: 'General' },
-    { id: 2, title: 'NEM 111', description: 'General' },
-    // Add more courses as needed
-  ];
-
-  const inProgressCourses: Course[] = [
-    { id: 3, title: "111", description: "Description for Course 3" },
-    { id: 4, title: " 111", description: "Description for Course 4" },
-  ];
-
-  const completedCourses: Course[] = [
-    { id: 5, title: "ggg 111", description: "Description for Course 5" },
-    { id: 6, title: "NEM 111", description: "Description for Course 6" },
-  ];
-
-  const renderCourseCards = (courses: Course[]) => {
-    return courses.map((course) => (
-      <div key={course.id} className="border p-4 rounded-md " style={{ boxShadow: 'rgba(99, 99, 99, 0.2) 0px 2px 8px 0px' }} >
-        <div className='flex items-center p-2 pl-0'>
-        <BsLaptop size={'30px'} />
-        <h3 className="text-xl font-semibold ml-3">{course.title}</h3>
-        </div>
-        <p>{course.description}</p>
-
-        <div className=' w-44 flex items-center justify-between p-2 pl-0'>
-          <div>10 min</div>
-          <div >completed</div>
-        </div>
-        <button className='startButton' onClick={openModal}>Start Interview</button>
-      </div>
-    ));
-  };
+  }, [type]);
 
   return (
     <div>
-      <div className=" mx-auto p-4 bg-white rounded-lg shadow-lg"  >
-        <p className='h2 mb-3'>My Interviews</p>
+      <div className=" mx-auto p-8  bg-white rounded-lg shadow-lg">
         <div className="mb-4">
           <ul className="flex gap-5">
-            <li className={`mr-4 cursor-pointer ${selectedTab === 0 && 'border-b-2 border-purple-600'}`}>
-              <div onClick={() => handleTabChange(0)}>All Courses</div>
+            <li
+              className={`mr-4 cursor-pointer ${
+                selectedTab === 0 && "border-b-2 border-primary_green"
+              }`}
+            >
+              <div onClick={() => handleTabChange(0)}>
+                <h4 className={`${selectedTab == 0 && "text-primary_green"}`}>
+                  Get Started
+                </h4>
+              </div>
             </li>
-            <li className={`mr-4 cursor-pointer ${selectedTab === 1 && 'border-b-2 border- border-purple-600'}`}>
-              <div onClick={() => handleTabChange(1)}>In Progress</div>
-            </li>
-            <li className={`cursor-pointer ${selectedTab === 2 && 'border-b-2 border- border-purple-600'}`}>
-              <div onClick={() => handleTabChange(2)}>Completed</div>
+            <li
+              className={`cursor-pointer ${
+                selectedTab === 1 && "border-b-2 border- border-primary_green"
+              }`}
+            >
+              <div onClick={() => handleTabChange(1)}>
+                <h4 className={`${selectedTab == 1 && "text-primary_green"}`}>
+                  Completed Interviews
+                </h4>
+              </div>
             </li>
           </ul>
         </div>
 
-        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-3.5'>
-          {selectedTab === 0 && renderCourseCards(allCourses)}
-          {selectedTab === 1 && renderCourseCards(inProgressCourses)}
-          {selectedTab === 2 && renderCourseCards(completedCourses)}
+        <div>
+          {selectedTab === 0 && <UserAction openModal={openModal} />}
+          {selectedTab === 1 && <UserInterviews />}
         </div>
       </div>
       <div>
-          <Modal isOpen={isModalOpen} onClose={closeModal}>
-
-            <div style={{display:'flex', justifyContent:"space-between",padding:"10%",textAlign:"center",gap:"20px"}}>
-              <div  className="cursor-pointer hover:bg-blue-300"style={{border:"1px solid black", width:"100px", height:"50px",paddingTop:"10px"}}>
-                MERN
-              </div>
-              <div className="cursor-pointer hover:bg-blue-300" style={{border:"1px solid black", width:"100px", height:"50px",paddingTop:"10px"}}>
-                JAVA
-              </div>
-              <div className="cursor-pointer hover:bg-blue-300" style={{border:"1px solid black", width:"100px", height:"50px",paddingTop:"10px"}}>
-                DSA
-              </div>
+        <Modal isOpen={isModalOpen} onClose={closeModal}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "10%",
+              textAlign: "center",
+              gap: "20px",
+            }}
+          >
+            <div
+              className={`cursor-pointer hover:bg-primary_green hover:text-text bg-${
+                type == "MERN" ? "primary_green" : "transparent"
+              }`}
+              style={{
+                border: "1px solid black",
+                width: "100px",
+                height: "50px",
+                paddingTop: "10px",
+              }}
+              onClick={() => setType("MERN")}
+            >
+              MERN
             </div>
-          
-           <div style={{marginLeft:"25%"}}>
-              <Link to="/dashboard/start_interview"><button className="btn">Start the Interview</button></Link>
-           </div>
-          </Modal>
-       </div>
+            <div
+              className={`cursor-pointer hover:bg-primary_green hover:text-text bg-${
+                type == "Java" ? "primary_green" : "transparent"
+              }`}
+              style={{
+                border: "1px solid black",
+                width: "100px",
+                height: "50px",
+                paddingTop: "10px",
+              }}
+              onClick={() => setType("Java")}
+            >
+              JAVA
+            </div>
+            <div
+              className={`cursor-pointer hover:bg-primary_green hover:text-text bg-${
+                type == "DSA" ? "primary_green" : "transparent"
+              }`}
+              style={{
+                border: "1px solid black",
+                width: "100px",
+                height: "50px",
+                paddingTop: "10px",
+              }}
+              onClick={() => setType("DSA")}
+            >
+              DSA
+            </div>
+          </div>
+          <div style={{ marginLeft: "25%" }}>
+            <button
+              className="btn"
+              disabled={!type}
+              onClick={() => navigate("/dashboard/start_interview")}
+            >
+              Start the Interview
+            </button>
+          </div>
+        </Modal>
+      </div>
     </div>
   );
 };

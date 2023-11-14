@@ -11,6 +11,13 @@ import {
   GET_LOGGEDUSER_ERROR,
   GET_LOGGEDUSER_LOADING,
   GET_LOGGEDUSER_SUCCESS,
+  PATCH_LOGGEDUSER_SUCCESS,
+  GET_USERINTERVIEWS_ERROR,
+  GET_USERINTERVIEWS_LOADING,
+  GET_USERINTERVIEWS_SUCCESS,
+  GET_LEADERBOARD_LOADING,
+  GET_LEADERBOARD_ERROR,
+  GET_LEADERBOARD_SUCCESS,
 } from "./actionTypes";
 import { Action } from "./types"; // Define your types as needed
 
@@ -20,6 +27,8 @@ interface State {
   isAuth: boolean;
   token: string | null;
   loggedInUser: any | null;
+  userInterviews: [];
+  leaderboard: [];
 }
 
 const initState: State = {
@@ -28,6 +37,8 @@ const initState: State = {
   isAuth: false,
   token: null,
   loggedInUser: null,
+  userInterviews: [],
+  leaderboard: [],
 };
 
 export const reducer = (state: State = initState, action: Action): State => {
@@ -92,6 +103,47 @@ export const reducer = (state: State = initState, action: Action): State => {
         isLoading: false,
         isError: false,
         loggedInUser: action.payload,
+      };
+    case PATCH_LOGGEDUSER_SUCCESS:
+      return {
+        ...state,
+        loggedInUser: action.payload,
+      };
+    case GET_USERINTERVIEWS_LOADING:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case GET_USERINTERVIEWS_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        isError: true,
+      };
+    case GET_USERINTERVIEWS_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        isError: false,
+        userInterviews: action.payload,
+      };
+    case GET_LEADERBOARD_LOADING:
+      return {
+        ...state,
+        isLoading: true,
+      };
+    case GET_LEADERBOARD_ERROR:
+      return {
+        ...state,
+        isLoading: false,
+        isError: true,
+      };
+    case GET_LEADERBOARD_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+        isError: false,
+        leaderboard: action.payload,
       };
     default:
       return state;

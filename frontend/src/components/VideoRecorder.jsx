@@ -1,42 +1,56 @@
-import { useReactMediaRecorder } from "react-media-recorder";
-import axios from "axios";
+import React, { useRef, useState } from "react";
 
 export const VideoRecorder = () => {
-  const { status, startRecording, stopRecording, mediaBlobUrl } =
-    useReactMediaRecorder({ video: true });
+  const videoRef = useRef();
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [recordedChunks, setRecordedChunks] = useState([]);
+  const [stream, setStream] = useState(null);
 
-  const handleSave = async () => {
-    if (!mediaBlobUrl) {
-      console.error("No recorded video to save");
-      return;
+  const startRecording = async () => {
+    const newStream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+    });
+    videoRef.current.srcObject = newStream;
+
+    const recorder = new MediaRecorder(newStream);
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) {
+        setRecordedChunks((prev) => prev.concat(e.data));
+      }
+    };
+
+    setMediaRecorder(recorder);
+    setStream(newStream);
+    recorder.start();
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder) {
+      mediaRecorder.onstop = () => {};
+      mediaRecorder.stop();
+      videoRef.current.srcObject = null;
+      stream.getTracks().forEach((track) => track.stop());
     }
+  };
 
-    const formData = new FormData();
-
-    try {
-      const response = await fetch(mediaBlobUrl);
-      const blobData = await response.blob();
-
-      formData.append("video", blobData, "recorded_video.webm");
-
-      const uploadResponse = await axios.post(
-        "http://localhost:8080/upload",
-        formData
-      );
-      console.log(uploadResponse.data);
-      console.log("Video saved successfully");
-    } catch (error) {
-      console.error("Error saving video", error);
+  const saveRecording = () => {
+    if (recordedChunks.length > 0) {
+      const blob = new Blob(recordedChunks, { type: "video/webm" });
+      console.log(blob);
+      // Perform the backend request here with the 'blob' data
+      // Example: uploadToBackend(blob);
+      setRecordedChunks([]);
     }
   };
 
   return (
     <div>
-      <p>{status}</p>
       <button onClick={startRecording}>Start Recording</button>
       <button onClick={stopRecording}>Stop Recording</button>
-      <button onClick={handleSave}>Save Video</button>
-      <video src={mediaBlobUrl} controls autoPlay loop />
+      <button onClick={saveRecording}>Save Recording</button>
+      <video ref={videoRef} controls autoPlay />
     </div>
   );
 };
+
+export default VideoRecorder;

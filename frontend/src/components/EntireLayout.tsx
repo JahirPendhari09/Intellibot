@@ -3,15 +3,15 @@ import React, { Fragment, useEffect } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
-import { Store } from "redux";
 import { RootState } from "../redux/store";
 import {
-  GET_LOGGEDUSER_LOADING,
-  GET_LOGGEDUSER_ERROR,
-  GET_LOGGEDUSER_SUCCESS,
+  GET_LOGOUT_LOADING,
+  GET_LOGOUT_ERROR,
+  GET_LOGOUT_SUCCESS,
 } from "../redux/authReducer/actionTypes";
 
 import { useToast } from "./custom/ToastProvider";
+import axios from "axios";
 // import axios from "axios";
 const user = {
   name: "Tom Cook",
@@ -29,15 +29,10 @@ interface NavigationItem {
 const navigation: NavigationItem[] = [
   { name: "Home", href: "/", current: true },
   { name: "Dashboard", href: "/dashboard", current: false },
-  { name: "About", href: "/about", current: false },
-  { name: "Roadmaps", href: "#/roadmap", current: false },
+  { name: "Profile", href: "/profile", current: false },
 ];
 
-const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
-  { name: "Sign out", href: "#" },
-];
+const userNavigation = [{ name: "Sign out", href: "#" }];
 
 function classNames(...classes: (string | boolean)[]): string {
   return classes.filter(Boolean).join(" ");
@@ -64,55 +59,63 @@ const EntireLayout = () => {
   //   }
   // }, []);
 
-  // const getUserData = async () => {
-  //   dispatch({ type: GET_LOGGEDUSER_LOADING });
-  //   const config = {
-  //     headers: {
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //   };
-  //   try {
-  //     const response = await axios.get(
-  //       `${process.env.REACT_APP_API_URL}/auth/data`,
-  //       config
-  //     );
-  //     console.log(response.data.user);
-  //     const userWithProfileImage = response.data.user;
-  //     userWithProfileImage.profileImage = `${process.env.REACT_APP_API_URL}/${userWithProfileImage.profileImage}`;
-  //     console.log(userWithProfileImage);
-  //     dispatch({ type: GET_LOGGEDUSER_SUCCESS, payload: userWithProfileImage });
-  //   } catch (error) {
-  //     console.log("Error fetching user data:", error);
-  //     dispatch({ type: GET_LOGGEDUSER_ERROR });
-  //     toast("warning", "Couldn't fetch user data, try logging in again");
-  //   }
-  // };
+  const logoutUser = async () => {
+    dispatch({ type: GET_LOGOUT_LOADING });
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/auth/logout`,
+        config
+      );
+      localStorage.removeItem("token");
+      toast("success", "Logged out successfully");
+      dispatch({ type: GET_LOGOUT_SUCCESS });
+      navigate("/");
+    } catch (error) {
+      console.log("Error while logging out:", error);
+      dispatch({ type: GET_LOGOUT_ERROR });
+      toast("error", "Something went wrong while logging out");
+    }
+  };
   return (
     <>
-      <div className="min-h-full">
-        <Disclosure as="nav" className={"bgcolor"}>
+      <div className="min-h-full mb-[1rem]">
+        <Disclosure as="nav" className="bgcolor" style={{ width: "100%" }}>
           {({ open }) => (
             <>
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div
                   className="flex h-16 items-center justify-between"
-                  style={{ marginLeft: "24rem" }}
+                  // style={{ marginLeft: "24rem" }}
                 >
+                  <div className="mb-6 md:mb-0">
+                    <a
+                      href="https://flowbite.com/"
+                      className="flex items-center"
+                    >
+                      <img
+                        src="https://flowbite.com/docs/images/logo.svg"
+                        className="h-8 me-3"
+                        alt="FlowBite Logo"
+                      />
+                      <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
+                        Intellibot
+                      </span>
+                    </a>
+                  </div>
                   <div className="flex items-center">
-                    <div className="flex-shrink-0">
-                      {/* <img
-                            className="h-8 w-8"
-                            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
-                            alt="Your Company"
-                          /> */}
-                    </div>
                     <div className="hidden md:block">
-                      <div className="ml-10 flex items-baseline space-x-4">
+                      <div className="ml-10 flex items-baseline space-x-4 cursor-pointer">
                         {navigation.map((item) => (
                           <Link
                             key={item.name}
                             to={item.href}
-                            className="rounded-md px-3 py-2 text-lg font-small"
+                            className="rounded-md px-3 py-2 text-lg font-small transition-colors hover:text-green-500"
                           >
                             {item.name}
                           </Link>
@@ -157,6 +160,7 @@ const EntireLayout = () => {
                                     {({ active }) => (
                                       <Link
                                         to={item.href}
+                                        onClick={logoutUser}
                                         className={classNames(
                                           active ? "bg-gray-100" : "",
                                           "block px-4 py-2 text-sm text-gray-700"
@@ -227,7 +231,7 @@ const EntireLayout = () => {
                     </Link>
                   ))}
                 </div>
-                  <div className="border-t border-gray-700 pb-3 pt-4">
+                <div className="border-t border-gray-700 pb-3 pt-4">
                   <div className="flex items-center px-5">
                     <div className="flex-shrink-0">
                       <img
@@ -252,8 +256,8 @@ const EntireLayout = () => {
                       <span className="sr-only">View notifications</span>
                       <BellIcon className="h-6 w-6" aria-hidden="true" />
                     </button>
-                    </div>
-                    <div className="mt-3 space-y-1 px-2">
+                  </div>
+                  <div className="mt-3 space-y-1 px-2">
                     {userNavigation.map((item) => (
                       <Link
                         key={item.name}
@@ -263,7 +267,7 @@ const EntireLayout = () => {
                         {item.name}
                       </Link>
                     ))}
-                    </div>
+                  </div>
                   <div className="border-t border-gray-700 pb-3 pt-4">
                     <div className="flex items-center px-5">
                       <div className="flex-shrink-0">
