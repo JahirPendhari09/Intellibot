@@ -28,8 +28,8 @@ Accessible online anytime, anywhere.
 
 ## Authors
 **Team Members :**
-- [Ayushaman Rajput](https://github.com/amolkpatil22)
-- [Srinivasan ](https://github.com/nishantkr163)
-- [Jahir Pendhari](https://github.com/dev-subhadeep)
-- [Naveen Kumarl](https://github.com/shubham-masai) 
-- [Chandan Sharma](https://github.com/aavishkark) 
+- [Ayushman Rajput](https://github.com/AyushmaanRajput)
+- [Srinivasan](https://github.com/Srinivas831)
+- [Jahir Pendhari](https://github.com/JahirPendhari09)
+- [Naveen Kumarl](https://github.com/S-Naveen-Kumar-1) 
+- [Chandan Sharma]() 
