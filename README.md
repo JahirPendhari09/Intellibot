@@ -5,7 +5,7 @@ Intellibot is a cutting-edge virtual interviewer designed to assist students in 
 **Vecel :**  [Intellibot](https://intellibotfrontend.vercel.app/)
 ## Tech Stack
 
-**Front-End:** React | TypScript | Tailwind | Chart.js
+**Front-End:** React | TypScript | Tailwind
 
 **Back-End [API] :** Express | Node | MangoDB 
 
